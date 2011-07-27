@@ -1,0 +1,24 @@
+{% if switch_user_form %}
+
+<style type="text/cs">
+	.switch-user-fake-link:hover {
+		cursor:pointer;
+	}
+</style>
+
+<div style="position:absolute; top:10px; left:10px;">
+	<div class="switch-user-toggles-this" style="display:none;">
+		<form action="." method="post"> 
+		{% csrf_token %}
+		{{ switch_user_form.user }}
+		<input type="submit" value="switch">
+		</form>
+		<br>
+		<a class="switch-user-fake-link" onclick="$('.switch-user-toggles-this').toggle();">Hide</a>
+
+	</div>
+	<div class="switch-user-toggles-this">
+		<a class="switch-user-fake-link" onclick="$('.switch-user-toggles-this').toggle();">Switch User</a>
+	</div>
+</div>
+{% endif %}
