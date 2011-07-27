@@ -14,7 +14,7 @@ def switch_user(request):
 		(request.session and request.session.has_key('superuser-switch')):
 
 		class SelectUser(forms.Form):
-			user = ModelChoiceField(queryset=User.objects.all())
+			user = forms.ModelChoiceField(queryset=User.objects.all())
 
 		return {'switch_user_form': SelectUser(prefix="django-switch") }
 	return {}
