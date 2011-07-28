@@ -1,15 +1,15 @@
 {% if switch_user_form %}
 
-<style type="text/cs">
-	.switch-user-fake-link:hover {
-		cursor:pointer;
+<style type="text/css">
+	a.switch-user-fake-link:hover {
+		cursor:pointer!important;
 	}
 </style>
 
 <div style="position:absolute; top:10px; left:10px;">
 	<div class="switch-user-toggles-this" style="display:none;">
-		<form action="." method="post"> 
-		{% csrf_token %}
+		<form action="." method="post">
+		{% csrf_token %}	
 		{{ switch_user_form.user }}
 		<input type="submit" value="switch">
 		</form>
