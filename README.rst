@@ -4,7 +4,7 @@ DJANGO SWITCH USER
 Simple app that places a small form for super users to select a different user, and 
 automatically log in as that user, for testing purposes.
 
-settings.py
+settings.py::
 -----------
 
 	INSTALLED_APPS = (
@@ -13,16 +13,16 @@ settings.py
 	)
 
 
-	Note that the order of middleware is important.
-	Take care to place this before any user-dependent middleware
+Note that the order of middleware is important.
+Take care to place this before any user-dependent middleware.::
 
 	MIDDLEWARE_CLASSES = (
 		...
 		'django_swtich_user.middleware.SwitchUser',
 	)
 
-	By default, the auth backends contains only Django's Modelbackend.
-	Include that one as well when you override the setting.
+By default, the auth backends contains only Django's Modelbackend.
+Include that one as well when you override the setting.::
 
 	AUTHENTICATION_BACKENDS = (
 		'django.contrib.auth.backends.ModelBackend',
