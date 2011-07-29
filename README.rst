@@ -14,11 +14,14 @@ settings.py
 	)
 
 
-Note that the order of middleware is important.
-Take care to place this before any user-dependent middleware.::
+Note that the order of middleware is important. 
+Take care to place this before any user-dependent middleware.
+If you are using Django's CSRF middleware, the SwitchUser
+middleware must come AFTER CSRF middleware.::
 
 	MIDDLEWARE_CLASSES = (
 		...
+                'django.middleware.csrf.CsrfViewMiddleware',
 		'django_swtich_user.middleware.SwitchUser',
 	)
 
