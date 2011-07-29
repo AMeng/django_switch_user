@@ -1,26 +1,24 @@
 Simple app that places a small form for super users to select a different user, and 
 automatically log in as that user, for testing purposes.
 
-INSTALLATION:
+==================
+DJANGO SWITCH USER
+==================
 
-settings.py:
-
+settings.py
+-----------
 	INSTALLED_APPS = (
 		...
 		'django_switch_user',
 	)
 
-	# Note that the order of middleware is important.
-	# Take care to place this before any user-dependent middleware
+
+	Note that the order of middleware is important.
+	Take care to place this before any user-dependent middleware
 
 	MIDDLEWARE_CLASSES = (
 		...
 		'django_swtich_user.middleware.SwitchUser',
-	)
-
-	TEMPLATE_CONTEXT_PROCESSORS = (
-		...
-		'django_switch_user.context_processors.switch_user',
 	)
 
 	# By default, the auth backends contains only Django's Modelbackend.
@@ -30,7 +28,3 @@ settings.py:
 		'django.contrib.auth.backends.ModelBackend',
 		'django_switch_user.backends.SwitchUserBackend',
 	)
-
-your_base_template.html:
-
-	{% include "django_switch_user/switch_user_form.html" %}
