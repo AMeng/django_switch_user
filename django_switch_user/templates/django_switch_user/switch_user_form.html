@@ -1,24 +1,62 @@
 {% if switch_user_form %}
 
 <style type="text/css">
+	
+	.switch-user-panel {
+		position:fixed;
+		top:100px;
+		left:0px;
+		background-color: black;
+		color: white;
+		padding: 5px;
+		border-radius: 0 10px 10px 0;
+		border-color: white;
+		border-width: 2px 2px 2px 0;
+		border-style: solid;
+		box-shadow: 1px 2px 5px black;
+	}
+
+	.switch-user-panel a {
+		color: white;
+		text-decoration: none;
+		font-weight: bold;
+		font-size: 12px;
+	}
+
+	.switch-user-panel a:hover {
+		color: red;
+	}
+
+	.switch-user-x {
+		font-size: 18px!important;
+		font-weight: bold;
+		float:right;
+		color: red;
+	}
+
+	.switch-user-x:hover {
+		text-decoration: underline;
+	}
+
 	a.switch-user-fake-link:hover {
 		cursor:pointer!important;
 	}
+
 </style>
 
-<div style="position:absolute; top:10px; left:10px;">
+<div class="switch-user-panel">
 	<div class="switch-user-toggles-this" style="display:none;">
 		<form action="." method="post">
 		{% csrf_token %}	
 		{{ switch_user_form.user }}
-		<input type="submit" value="switch">
-		</form>
 		<br>
-		<a class="switch-user-fake-link" onclick="$('.switch-user-toggles-this').toggle();">Hide</a>
+		<input type="submit" value="switch">
+		<a class="switch-user-fake-link switch-user-x" onclick="$('.switch-user-toggles-this').toggle();">X</a>
+		</form>
 
 	</div>
-	<div class="switch-user-toggles-this">
-		<a class="switch-user-fake-link" onclick="$('.switch-user-toggles-this').toggle();">Switch User</a>
+	<div class="switch-user-toggles-this" style="text-align:center;">
+		<a class="switch-user-fake-link" onclick="$('.switch-user-toggles-this').toggle();">Switch<br>User</a>
 	</div>
 </div>
 {% endif %}
