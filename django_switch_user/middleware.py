@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django import forms
+from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.utils.encoding import smart_unicode
 from django.views.decorators.csrf import csrf_exempt
@@ -26,11 +27,12 @@ class SwitchUser():
 		is either a superuser, or they have the correct session flag
 		(which is set below when needed). We use a custom auth backend to
 		'validate' the user
+
+		This requires the use of sessions.
 		"""
 
-		if (request.user.is_superuser or request.session.has_key('superuser-switch')) and \
-			request.POST and 'django-switch-user' in request.POST:
-			
+		if request.POST and 'django-switch-user' in request.POST and self.is_auth_to_switch(request):
+					
 			new_username = User.objects.get(id=request.POST['django-switch-user']).username
 
 			if request.session.has_key('superuser-switch'):
@@ -51,18 +53,25 @@ class SwitchUser():
 
 			request.session['superuser-switch'] = True
 
+			return redirect(request.path)
+
 		return
+
+	def is_auth_to_switch(self,request):
+		if not hasattr(request,'session'):
+			return False
+
+		if request.user.is_superuser or request.user.has_perm('Switch User') or \
+				request.session.has_key('superuser-switch'):
+			return True
+		return False
 
 	def process_response(self,request,response):
 		"""
 		Embed the form template into the response content
 		"""
 
-		context = {}
-
-		if request.user.is_superuser or \
-			request.user.has_perm('Switch User') or \
-			(request.session and request.session.has_key('superuser-switch')):
+		if self.is_auth_to_switch(request):
 
 			form = self.get_form()
 
@@ -71,14 +80,14 @@ class SwitchUser():
 			if 'csrftoken' in request.COOKIES:
 				context['csrf_token'] = request.COOKIES['csrftoken']
 
-		response.content = replace_insensitive(
-			smart_unicode(response.content),
-			u'</body>',
-			smart_unicode(render_to_string(self.get_template(),context) + u'</body>')
-		)
+			response.content = replace_insensitive(
+				smart_unicode(response.content),
+				u'</body>',
+				smart_unicode(render_to_string(self.get_template(),context) + u'</body>')
+			)
 
-		if response.get('Content-Length', None):
-			response['Content-Length'] = len(response.content)
+			if response.get('Content-Length', None):
+				response['Content-Length'] = len(response.content)
 
 		return response
 
