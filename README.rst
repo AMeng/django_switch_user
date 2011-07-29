@@ -4,8 +4,9 @@ DJANGO SWITCH USER
 Simple app that places a small form for super users to select a different user, and 
 automatically log in as that user, for testing purposes.
 
-settings.py::
+settings.py
 -----------
+::
 
 	INSTALLED_APPS = (
 		...
