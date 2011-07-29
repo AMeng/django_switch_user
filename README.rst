@@ -4,8 +4,8 @@ DJANGO SWITCH USER
 Simple app that places a small form for super users to select a different user, and 
 automatically log in as that user, for testing purposes.
 
-settings.py
------------
+INSTALLATION (settings.py)
+-------------------------
 ::
 
 	INSTALLED_APPS = (
@@ -33,11 +33,15 @@ Include that one as well when you override the setting. ::
 		'django_switch_user.backends.SwitchUserBackend',
 	)
 
+CUSTOMIZATION (settings.py)
+-------------------------
+
 If you would like to customize the queryset of users in the form ::
 
     def DJANGO_SWITCH_USER_QUERYSET(qs):
         return qs.filter(is_active=True).order_by('last_name')
 
 If you would like to customize the display of users in the form ::
+
     def DJANGO_SWITCH_USER_LABEL(u):
         return "%s, %s" % (u.last_name, u.first_name)
