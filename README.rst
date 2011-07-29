@@ -39,5 +39,6 @@ If you would like to customize the queryset of users in the form ::
         return qs.filter(is_active=True).order_by('last_name')
 
 If you would like to customize the display of users in the form ::
+
     def DJANGO_SWITCH_USER_LABEL(u):
         return "%s, %s" % (u.last_name, u.first_name)
