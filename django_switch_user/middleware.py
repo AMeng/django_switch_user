@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.handlers.wsgi import WSGIRequest
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django import forms
@@ -22,6 +23,7 @@ def replace_insensitive(string, target, replacement):
 class SwitchUser():
 	def process_request(self,request):
 
+		print "request function"
 		"""
 		If the switch user form has been submitted, validate that the user
 		is either a superuser, or they have the correct session flag
@@ -58,7 +60,7 @@ class SwitchUser():
 		return
 
 	def is_auth_to_switch(self,request):
-		if not hasattr(request,'session'):
+		if isinstance(request, WSGIRequest) or not hasattr(request,'session'):
 			return False
 
 		if request.user.is_superuser or request.user.has_perm('Switch User') or \
@@ -70,7 +72,6 @@ class SwitchUser():
 		"""
 		Embed the form template into the response content
 		"""
-
 		if self.is_auth_to_switch(request):
 
 			form = self.get_form()
@@ -92,10 +93,17 @@ class SwitchUser():
 		return response
 
 	def get_user_queryset(self):
+		"""
+		To override the queryset of users in the form, create a function
+		in your settings.py file called DJANGO_SWITCH_USER_QUERYSET. It 
+		must take one argument, which will be the queryset of all users.
+		It must also return a queryset.
+		"""
+
 		if hasattr(settings, 'DJANGO_SWITCH_USER_QUERYSET'):
 			return settings.DJANGO_SWITCH_USER_QUERYSET(User.objects.all())
 
-		return User.objects.filter(is_active=True).order_by('username')
+		return User.objects.filter(is_active=True).order_by('username')[:100]
 
 	def get_form(self):
 		class SelectUser(forms.Form):
@@ -104,6 +112,12 @@ class SwitchUser():
 		return SelectUser
 
 	def get_user_label(self,user):
+		"""
+		To override the display of users in the form, create afunction 
+		in your settings.py file called DJANGO_SWITCH_USER_LABEL. It
+		must take one argument, which will be the User model. It must
+		return a string representation of the user.
+		"""
 		if hasattr(settings, 'DJANGO_SWITCH_USER_LABEL'):
 			return settings.DJANGO_SWITCH_USER_LABEL(user)
 		return "%s" % user
