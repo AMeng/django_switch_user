@@ -23,7 +23,6 @@ def replace_insensitive(string, target, replacement):
 class SwitchUser():
 	def process_request(self,request):
 
-		print "request function"
 		"""
 		If the switch user form has been submitted, validate that the user
 		is either a superuser, or they have the correct session flag
