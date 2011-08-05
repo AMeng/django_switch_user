@@ -59,7 +59,7 @@ class SwitchUser():
 		return
 
 	def is_auth_to_switch(self,request):
-		if isinstance(request, WSGIRequest) or not hasattr(request,'session'):
+		if not hasattr(request,'session'):
 			return False
 
 		if request.user.is_superuser or request.user.has_perm('Switch User') or \
@@ -71,7 +71,7 @@ class SwitchUser():
 		"""
 		Embed the form template into the response content
 		"""
-		if self.is_auth_to_switch(request):
+		if self.is_auth_to_switch(request) and response.content.lower().rfind("</body>") >= 0:
 
 			form = self.get_form()
 
