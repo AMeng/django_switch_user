@@ -7,6 +7,7 @@ from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.utils.encoding import smart_unicode
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.encoding import DjangoUnicodeDecodeError
 
 def replace_insensitive(string, target, replacement):
 	"""
@@ -68,6 +69,7 @@ class SwitchUser():
 		return False
 
 	def process_response(self,request,response):
+
 		"""
 		Embed the form template into the response content
 		"""
@@ -80,11 +82,18 @@ class SwitchUser():
 			if 'csrftoken' in request.COOKIES:
 				context['csrf_token'] = request.COOKIES['csrftoken']
 
-			response.content = replace_insensitive(
-				smart_unicode(response.content),
-				u'</body>',
-				smart_unicode(render_to_string(self.get_template(),context) + u'</body>')
-			)
+			try:
+
+				response.content = replace_insensitive(
+					smart_unicode(response.content),
+					u'</body>',
+					smart_unicode(render_to_string(self.get_template(),context) + u'</body>')
+				)
+			except DjangoUnicodeDecodeError:
+				"""
+				This usually happens when a file is being passed in from the response. This needs to be addressed more specifically...
+				"""
+				pass
 
 			if response.get('Content-Length', None):
 				response['Content-Length'] = len(response.content)
