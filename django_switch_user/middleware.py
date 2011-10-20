@@ -34,28 +34,57 @@ class SwitchUser():
 		"""
 
 		if request.POST and 'django-switch-user' in request.POST and self.is_auth_to_switch(request):
-					
-			new_username = User.objects.get(id=request.POST['django-switch-user']).username
-
-			if request.session.has_key('superuser-switch'):
-				new_user = authenticate(original_username=request.user.username, new_username=new_username, superuser_session=True)
-			else:
-				new_user = authenticate(original_username=request.user.username, new_username=new_username)
 			
-			login(request,new_user)
+			if 'django-switch-user-go-back' in request.POST:
+				new_username = request.session['switch-user-original-user'].username
+			else:
+				new_username = User.objects.get(id=request.POST['django-switch-user']).username
 
-			request.user = new_user
-			request.session['_auth_user_id'] = new_user.id
+			new_user = authenticate(original_username=request.user.username, new_username=new_username, auth_session=True)
 
-			"""
-			We put a flag variable on the session, so we know this session belongs 
-			to a super user. This way, process_response knows to display the form
-			to switch users again.
-			"""
+			if new_user:
+				
+				"""
+				Say you switch from user A to B to ... to Y to Z:
+				original_user: This is user A
+				previous_user: This is user Y
+				new_user:      This is user Z
+				"""
 
-			request.session['superuser-switch'] = True
+				previous_user = request.user
 
-			return redirect(request.path)
+				original_user = previous_user
+				if request.session.has_key('switch-user-original-user'):
+					original_user = request.session['switch-user-original-user']
+
+				"""
+				Perform the switch
+				"""
+
+				login(request,new_user)
+
+				request.user = new_user
+				request.session['_auth_user_id'] = new_user.id
+				request.session['switch-user-original-user'] = original_user
+
+				"""
+				Erase the original user flag if you switch back to 
+				the original user
+				"""
+
+				if request.session.has_key('switch-user-original-user') and request.session['switch-user-original-user'] == new_user:
+					del request.session['switch-user-original-user']
+
+				"""
+				Here, we flag the session, so that switching to a user
+				without permission to switch back, will still allow
+				you to switch back.
+				"""
+
+				request.session['switch-user-flag'] = True
+
+
+				return redirect(request.path)
 
 		return
 
@@ -64,7 +93,7 @@ class SwitchUser():
 			return False
 
 		if request.user.is_superuser or request.user.has_perm('Switch User') or \
-				request.session.has_key('superuser-switch'):
+				request.session.has_key('switch-user-flag'):
 			return True
 		return False
 
@@ -77,10 +106,15 @@ class SwitchUser():
 
 			form = self.get_form()
 
-			context = {self.get_context_var_name(): form(prefix=self.get_form_prefix()) }
+			context = {
+					"switch_user_form": form(prefix=self.get_form_prefix()),
+					"switch_user_current_user": self.get_user_label(request.user) }
 
 			if 'csrftoken' in request.COOKIES:
 				context['csrf_token'] = request.COOKIES['csrftoken']
+
+			if request.session.has_key('switch-user-original-user'):
+				context['switch_user_original_user'] = self.get_user_label(request.session['switch-user-original-user'])
 
 			try:
 
@@ -121,7 +155,7 @@ class SwitchUser():
 
 	def get_user_label(self,user):
 		"""
-		To override the display of users in the form, create afunction 
+		To override the display of users in the form, create a function 
 		in your settings.py file called DJANGO_SWITCH_USER_LABEL. It
 		must take one argument, which will be the User model. It must
 		return a string representation of the user.
@@ -129,9 +163,6 @@ class SwitchUser():
 		if hasattr(settings, 'DJANGO_SWITCH_USER_LABEL'):
 			return settings.DJANGO_SWITCH_USER_LABEL(user)
 		return "%s" % user
-
-	def get_context_var_name(self):
-		return "switch_user_form"
 
 	def get_form_prefix(self):
 		return "django-switch"

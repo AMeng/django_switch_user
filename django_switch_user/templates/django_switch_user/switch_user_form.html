@@ -14,6 +14,7 @@
 		border-width: 2px 2px 2px 0;
 		border-style: solid;
 		box-shadow: 1px 2px 5px black;
+		font-size: 12px;
 	}
 
 	.switch-user-panel a {
@@ -28,30 +29,38 @@
 	}
 
 	.switch-user-x {
-		font-size: 18px!important;
+		font-size: 23px!important;
 		font-weight: bold;
 		float:right;
 		color: red;
-	}
-
-	.switch-user-x:hover {
-		text-decoration: underline;
 	}
 
 	a.switch-user-fake-link:hover {
 		cursor:pointer!important;
 	}
 
+	.switch-user-panel input[type=submit] {
+		font-weight: bold;
+		width: 95%;
+		line-height:120%;
+	}
+
 </style>
 
-<div class="switch-user-panel screen">
+<div class="switch-user-panel">
 	<div class="switch-user-toggles-this" style="display:none;">
+			<a class="switch-user-fake-link switch-user-x" onclick="$('.switch-user-toggles-this').toggle();">X</a>
+		Current User: {{ switch_user_current_user }}<br>
 		<form action="." method="post">
-		{% csrf_token %}	
-		{{ switch_user_form.user }}
-		<br>
-		<input type="submit" value="switch">
-		<a class="switch-user-fake-link switch-user-x" onclick="$('.switch-user-toggles-this').toggle();">X</a>
+			{% csrf_token %}
+			{{ switch_user_form.user }}
+			<br>
+			<input type="submit" value="Switch to Selection">
+			{% if switch_user_original_user %}
+			<br>
+			<input type="submit" name="django-switch-user-go-back" value="Back to {{ switch_user_original_user }}">
+			{% endif %}
+
 		</form>
 
 	</div>
