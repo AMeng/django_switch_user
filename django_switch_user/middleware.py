@@ -1,13 +1,10 @@
 from django.conf import settings
-from django.core.handlers.wsgi import WSGIRequest
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django import forms
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
-from django.utils.encoding import smart_unicode
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.encoding import DjangoUnicodeDecodeError
+from django.utils.encoding import smart_unicode, DjangoUnicodeDecodeError
 
 def replace_insensitive(string, target, replacement):
 	"""
@@ -34,13 +31,17 @@ class SwitchUser():
 		"""
 
 		if request.POST and 'django-switch-user' in request.POST and self.is_auth_to_switch(request):
+			new_username = None
+			new_user = None
 			
 			if 'django-switch-user-go-back' in request.POST:
 				new_username = request.session['switch-user-original-user'].username
-			else:
+			elif request.POST['django-switch-user']: 
+				# Didn't we already check for this being in request.POST? Yes. But we did not check the boolean value of it.
 				new_username = User.objects.get(id=request.POST['django-switch-user']).username
 
-			new_user = authenticate(original_username=request.user.username, new_username=new_username, auth_session=True)
+			if new_username:
+				new_user = authenticate(original_username=request.user.username, new_username=new_username, auth_session=True)
 
 			if new_user:
 				
