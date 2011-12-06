@@ -98,12 +98,21 @@ class SwitchUser():
 			return True
 		return False
 
+	def response_has_content(self,response):
+		try:
+			response.content
+		except TypeError:
+			return False
+		else:
+			return True
+
 	def process_response(self,request,response):
 
 		"""
 		Embed the form template into the response content
 		"""
-		if self.is_auth_to_switch(request) and response.content.lower().rfind("</body>") >= 0:
+
+		if self.is_auth_to_switch(request) and self.response_has_content(response) and response.content.lower().rfind("</body>") >= 0:
 
 			form = self.get_form()
 
