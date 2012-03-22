@@ -35,9 +35,14 @@ class SwitchUser():
 			new_user = None
 			
 			if 'django-switch-user-go-back' in request.POST:
-				new_username = request.session['switch-user-original-user'].username
-			elif request.POST['django-switch-user']: 
-				# Didn't we already check for this being in request.POST? Yes. But we did not check the boolean value of it.
+				original_user = request.session.get('switch-user-original-user')
+				if original_user:
+					new_username = original_user.username
+				else:
+					# Our session is no longer keeping track of our original user. Nothing we can do from here.
+					return
+
+			elif request.POST.get('django-switch-user'): 
 				new_username = User.objects.get(id=request.POST['django-switch-user']).username
 
 			if new_username:
