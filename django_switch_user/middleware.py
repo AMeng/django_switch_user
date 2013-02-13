@@ -5,6 +5,7 @@ from django import forms
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.utils.encoding import smart_unicode, DjangoUnicodeDecodeError
+import re
 
 def replace_insensitive(string, target, replacement):
 	"""
@@ -117,7 +118,19 @@ class SwitchUser():
 		Embed the form template into the response content
 		"""
 
-		if self.is_auth_to_switch(request) and self.response_has_content(response) and response.content.lower().rfind("</body>") >= 0:
+		result = None		
+		if hasattr(settings,'DJANGO_SWITCH_USERS_EXCLUDE_URLS'):
+			
+			urls = settings.DJANGO_SWITCH_USERS_EXCLUDE_URLS()
+
+			for u in urls:
+				result = re.match(u, request.path)
+
+				if result != None:
+					break
+
+		
+		if result == None and self.is_auth_to_switch(request) and self.response_has_content(response) and response.content.lower().rfind("</body>") >= 0:
 
 			form = self.get_form()
 
